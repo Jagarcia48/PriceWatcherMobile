@@ -177,7 +177,10 @@ public class MainActivity extends AppCompatActivity implements NewItemDialog.New
     public void addItem(String name, String url) {
         Product product = new Product(name, url, getAddedDate());
         dataBase.addItem(product);
-      //  productAdapt.notifyDataSetChanged();
+        productsList.add(product);
+        //productAdapt.notifyDataSetChanged();
+        displayList();
+        Toast.makeText(this, "Item Added", Toast.LENGTH_SHORT).show();
     }
 
 
