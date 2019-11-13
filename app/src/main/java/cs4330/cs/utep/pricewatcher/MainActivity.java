@@ -36,11 +36,9 @@ public class MainActivity extends AppCompatActivity implements NewItemDialog.New
     private DataBaseHelper dataBase;
     private ProgressBar progressBar;
     private String url;
-    private ProductList productAdapt;
 
     private Handler handler;
 
-    private Thread thread;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,8 +82,26 @@ public class MainActivity extends AppCompatActivity implements NewItemDialog.New
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh:
-                //a.notifyDataSetChanged();
-                //ataBase.update(this);
+                for(Product currentItem : productsList){
+                    /* Price finder to find the current price of the items */
+                    PriceFinder finder = new PriceFinder(currentItem, false, progressBar, this);
+                    finder.start();
+                    /* Start a thread to update prices after network operations finish */
+                    new Thread(()-> {
+                        while(true) {
+                            if(!finder.isAlive()) {
+                                break;
+                            }
+                        }
+                        /* After thread stops update list */
+                        runOnUiThread(()->{
+                                    displayList();
+                                    /* Update Item in the database */
+                                    dataBase.update(currentItem);
+                                }
+                        );
+                    }).start();
+                }
                 return true;
 
             case R.id.add_item:
@@ -108,38 +124,6 @@ public class MainActivity extends AppCompatActivity implements NewItemDialog.New
         return super.onOptionsItemSelected(item);
     }
 
-/*
-
-   @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.refresh:
-                for(Product currentItem : productsList){
-                    PriceFinder finder = new PriceFinder(currentItem, false, progressBar, this);
-                    finder.start();
-                      new Thread(()-> {
-                        while(true) {
-                            if(!finder.isAlive()) {
-                                break;
-                            }
-                        }
-                        runOnUiThread(()->{
-                                    displayList();
-                                    dataBase.update(currentItem);
-                                }
-                        );
-                    }).start();
-                }
-                return true;
-            case R.id.add_item:
-                openNewItemDialog(null);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-*/
-
-
     private void openNewItemDialog(String sharedUrl) {
         NewItemDialog dialog = new NewItemDialog();
         if (sharedUrl != null) {
@@ -149,38 +133,30 @@ public class MainActivity extends AppCompatActivity implements NewItemDialog.New
         }
         dialog.show(getSupportFragmentManager(), "New item added");
     }
-
-   /* @Override
     public void addItem(String name, String url) {
+        /* Check if the url is valid before creating the item */
         if(!URLUtil.isValidUrl(url)) {
             Toast.makeText(this, "Invalid URL provided", Toast.LENGTH_SHORT).show();
             return;
         }
-        Product newProduct = new Product(name, url, getAddedDate());
-        PriceFinder finder = new PriceFinder(newProduct, true, progressBar, this);
+        Product newItem = new Product(name, url, getAddedDate());
+        /* Price finder to find the current price of the new item */
+        PriceFinder finder = new PriceFinder(newItem, true, progressBar, this);
         finder.start();
+        /* Start a thread to add new item with the store price */
         new Thread(()-> {
             while(true) {
-                if (!finder.isActive()) {
+                if(!finder.isAlive()) {
                     break;
                 }
             }
             runOnUiThread(()-> {
-                productsList.add(newProduct);
+                productsList.add(newItem);
                 displayList();
-                dataBase.addItem(newProduct);
+                /* Add item to database */
+                dataBase.addItem(newItem);
             });
         }).start();
-    }
-*/
-    @Override
-    public void addItem(String name, String url) {
-        Product product = new Product(name, url, getAddedDate());
-        dataBase.addItem(product);
-        productsList.add(product);
-        //productAdapt.notifyDataSetChanged();
-        displayList();
-        Toast.makeText(this, "Item Added", Toast.LENGTH_SHORT).show();
     }
 
 

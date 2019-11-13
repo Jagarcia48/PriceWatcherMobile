@@ -16,8 +16,6 @@ public class NewItemDialog extends AppCompatDialogFragment {
     public NewItemDialogListener listener;
     private EditText productsName;
     private EditText productsUrl;
-    //private EditText productsPrice;
-
     @Override
     public Dialog onCreateDialog(Bundle saveInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

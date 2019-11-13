@@ -1,6 +1,6 @@
 package cs4330.cs.utep.pricewatcher;
 
-public class Product {
+public class Product  {
     private String item;
     private String url;
     private float initialPrice;
@@ -86,6 +86,5 @@ public class Product {
     public void setId(int id){
         this.id = id;
     }
-
 
 }
