@@ -47,7 +47,7 @@ public class PriceFinder extends Thread {
         try {
 
             /* if it is walmart just connect to the url */
-            if((STORE == WALMART ) || (STORE == AMAZON)){
+            if((STORE == WALMART ) || (STORE == AMAZON) || (STORE == HOMEDEPOT)){
                 response = Jsoup.connect(url).execute();
             }
             else {
@@ -79,18 +79,31 @@ public class PriceFinder extends Thread {
                     for (Element meta : document.select(".Price-group")) {
                         if (meta.attr("aria-hidden") != null) {
                             price = meta.text();
+                            System.out.println("this is the price;" + price);
                             price = price.replace("$", "").trim();
                             break;
                         }
                     }
                     break;
                 case HOMEDEPOT:
-
-                for (Element meta : document.select("#ajaxPrice")) {
-                        price = meta.text();
-                        price = price.replace("$", "").trim();
-                }
-                break;
+                    String cents;
+                    String dollars = null;
+                    Elements meta = document.select("price__dollars");
+                    dollars = meta.text();
+                    System.out.println("this is the price;" + dollars);
+                    meta = document.select(".price__cents");
+                    cents = meta.text();
+                    System.out.println("this is the price;" + cents);
+                    price = dollars+"."+cents;
+                    System.out.println("this is the price:" + price);
+                    price = price.trim();
+//                    for (Element meta : document.select(".price__currency.price__dollars.price__cents")) {
+//                        price = meta.text();
+//                        System.out.print("this is the price" + price);
+//                        price = price.replace("$", "").trim();
+//                        break;
+//                    }
+                    break;
 
             }
             if(newProduct) {
