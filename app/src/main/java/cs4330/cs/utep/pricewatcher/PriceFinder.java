@@ -97,12 +97,7 @@ public class PriceFinder extends Thread {
                     price = dollars+"."+cents;
                     System.out.println("this is the price:" + price);
                     price = price.trim();
-//                    for (Element meta : document.select(".price__currency.price__dollars.price__cents")) {
-//                        price = meta.text();
-//                        System.out.print("this is the price" + price);
-//                        price = price.replace("$", "").trim();
-//                        break;
-//                    }
+
                     break;
 
             }
