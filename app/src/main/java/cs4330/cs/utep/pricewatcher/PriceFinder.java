@@ -10,35 +10,44 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class PriceFinder extends Thread {
     private int STORE;
     private final int WALMART = 1;
+    private final int HOMEDEPOT = 2;
+    private final int AMAZON = 3;
     private String url;
     private Product product;
-    private boolean newproduct;
+    private boolean newProduct;
 
 
     private ProgressBar progressBar;
     private Context context;
 
-    public PriceFinder(Product product, boolean newproduct, ProgressBar progressBar, Context context) {
+    public PriceFinder(Product product, boolean newProduct, ProgressBar progressBar, Context context) {
         this.product = product;
-        this.newproduct = newproduct;
+        this.newProduct = newProduct;
         this.progressBar = progressBar;
         this.context = context;
         url = product.getUrl();
 
        if(url.contains("walmart.com")) {
-            STORE = WALMART;
+           STORE = WALMART;
         }
+       else if(url.contains("homedepot.com")){
+           STORE = HOMEDEPOT;
+        }
+       else if(url.contains("amazon.com")){
+           STORE = AMAZON;
+       }
     }
     public void run() {
         Connection.Response response = null;
         try {
 
             /* if it is walmart just connect to the url */
-            if(STORE == WALMART) {
+            if((STORE == WALMART ) || (STORE == AMAZON)){
                 response = Jsoup.connect(url).execute();
             }
             else {
@@ -59,17 +68,32 @@ public class PriceFinder extends Thread {
             String price = null;
 
             switch (STORE) {
+
+                case AMAZON:
+                    for (Element meta : document.select("#priceblock_ourprice")) {
+                            price = meta.text();
+                            price = price.replace("$", "").trim();
+                            break;
+                    }
                 case WALMART:
                     for (Element meta : document.select(".Price-group")) {
-                        if (meta.attr("aria-label") != null) {
+                        if (meta.attr("aria-hidden") != null) {
                             price = meta.text();
                             price = price.replace("$", "").trim();
                             break;
                         }
                     }
                     break;
+                case HOMEDEPOT:
+
+                for (Element meta : document.select("#ajaxPrice")) {
+                        price = meta.text();
+                        price = price.replace("$", "").trim();
+                }
+                break;
+
             }
-            if(newproduct) {
+            if(newProduct) {
                 product.setInitialPrice(Float.parseFloat(price));
                 product.setCurrentPrice(Float.parseFloat(price));
             }
