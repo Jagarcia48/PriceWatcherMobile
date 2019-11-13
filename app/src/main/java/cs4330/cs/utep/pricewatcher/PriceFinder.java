@@ -70,7 +70,7 @@ public class PriceFinder extends Thread {
             switch (STORE) {
 
                 case AMAZON:
-                    for (Element meta : document.select("#priceblock_ourprice")) {
+                    for (Element meta : document.select(".a-size-medium.a-color-price.priceBlockBuyingPriceString")) {
                             price = meta.text();
                             price = price.replace("$", "").trim();
                             break;
